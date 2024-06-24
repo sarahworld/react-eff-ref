@@ -1,23 +1,38 @@
-import logo from './logo.svg';
+import React, {useState, useEffect} from 'react';
 import './App.css';
+import axios from 'axios';
 
 function App() {
+
+  const [deck, setDeck] = useState("")
+  const [card, setCard] = useState("")
+
+  useEffect(() => {
+    const fetchDeck = async () => {
+      const res = await axios.get('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1');
+      setDeck(res.data);
+    }
+    fetchDeck();
+  }, [])
+
+  const handleClick = async () => {
+    const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`)
+    setCard(response.data.cards[0])
+  }
+
+  const handleReshuffle = async () => {
+    setCard("")
+    const response = await axios.get(`https://deckofcardsapi.com/api/deck/${deck.deck_id}/shuffle/`)
+    setDeck(response.data);
+    
+  }
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <button onClick={handleClick}>Givme Card</button>
+      <div className='container'>
+      <img src={card.image}></img>
+      </div>
+      <button onClick={handleReshuffle}>Reshuffle Card</button>
     </div>
   );
 }
